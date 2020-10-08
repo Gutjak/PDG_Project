@@ -1,0 +1,39 @@
+Plan over procedual map generator
+Between dates
+8/10
+	Make Github repo
+		https://github.com/Gutjak/PDG_Project
+		
+	Define gameboard
+		Height and width
+			What consists a tile?
+				32x32 pixels?
+			How many tiles is on the gameboard?
+				50x30
+		Be able to show it.
+			using pygame.
+			
+	Define Generators
+		Generate room
+			Make sure it doen't intersect another rooms
+		Generate tunnel
+			From latest room to new room
+			
+29/10
+	Make an agent_player
+		Must be able to move around
+	Define enemy and obstacles
+		Place them on gameboard 
+	Generate enemy and obstacles in random places on the gameboard
+
+12/11
+	Determine gameloop
+		Escape the dungeon?
+		Survive the dungeon?
+	Assess difficult.
+		A Pathfinder module?
+		Number of enemies?
+
+26/11
+	Make it pretty
+
