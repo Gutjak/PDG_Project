@@ -19,6 +19,8 @@ Between dates
 		Generate tunnel
 			From latest room to new room
 			
+	Save the seed?
+	
 29/10
 	Make an agent_player
 		Must be able to move around
