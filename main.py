@@ -1,65 +1,120 @@
 import pygame, sys
+import constants
 
-#Initialize the pygame
-pygame.init()
-
-#Create the screen
-size = [800, 600]
-screen = pygame.display.set_mode((size))
 
 # Add Title and Icon to window
 pygame.display.set_caption("PDG Project")
-icon = pygame.image.load('brick.png')
+icon = pygame.image.load('data/brick.png')
 pygame.display.set_icon(icon)
 
-#Player
-player_img = pygame.image.load('man.png')
-player_coords = [256, 256]
 
+#Structs
+class struct_Tile:
+    def __init__(self, block_path):
+        self.block_path = block_path
 
-def player(player_coords):
-    screen.blit(player_img, (player_coords))
+#Objects
+class obj_Actor:
+    def __init__(self, x, y, sprite):
+        self.x = x #map adress
+        self.y = y #map adress
+        self.sprite = sprite
 
+    def draw(self):
+        SURFACE_MAIN.blit(self.sprite, (self.x*constants.CELL_WIDTH, self.y*constants.CELL_HEIGHT))
 
-#Game Loop
-running = True
-while running:
- 
-    screen.fill((0, 64, 0))
-    
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
+    def move(self, dx, dy):
+        if GAME_MAP[self.x + dx][self.y + dy].block_path == False:
+            self.x += dx
+            self.y += dy
+
+#Map with list comprehension
+def map_create():
+    new_map = [[ struct_Tile(False) for y in range(0, constants.MAP_HEIGHT)] for x in range(0, constants.MAP_WIDTH) ]
+
+    new_map[10][10].block_path = True
+    new_map[10][15].block_path = True
+
+    return new_map
+
+def draw_game():
+    global SURFACE_MAIN
+
+    #Clear the surface
+    SURFACE_MAIN.fill(constants.COLOR_DEFAULT_BG)
+
+    #draw the map
+    draw_map(GAME_MAP)
+
+    # draw the character
+    PLAYER.draw()
+
+    #Update the display
+    pygame.display.flip()
+
+def draw_map(map_to_draw):
+    for x in range(0, constants.MAP_WIDTH):
+        for y in range(0, constants.MAP_HEIGHT):
+            if map_to_draw[x][y].block_path == True:
+                #Draw wall
+                SURFACE_MAIN.blit(constants.S_WALL, (x*constants.CELL_WIDTH, y*constants.CELL_HEIGHT))
             
-        #check keystrokes to move player
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                player_coords[0] += -32
-                print("left")
-            if event.key == pygame.K_RIGHT:
-                player_coords[0] += 32
-                print("right")
-            if event.key == pygame.K_UP:
-                player_coords[1] += -32
-                print("up")
-            if event.key == pygame.K_DOWN:
-                player_coords[1] += 32
-                print("down")
-                          
-    player(player_coords)
-    # set borders for player
-    if player_coords[0] < 0:
-        player_coords[0] = 0
-    elif player_coords[0] > size[0]-32:
-        player_coords[0] = size[0]-32
-    elif player_coords[1] < 0:
-        player_coords[1] = 0
-    elif player_coords[1] > size[1]-32:
-        player_coords[1] = size[1]-32
+            else:
+                #Draw floor
+                SURFACE_MAIN.blit(constants.S_FLOOR, (x*constants.CELL_WIDTH, y*constants.CELL_HEIGHT))
+
+
+
+def game_loop():
+
     
-    pygame.display.update()
+    #Game Loop
+    running = True
+    while running:
+    
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            
+            #check keystrokes to move player
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    PLAYER.move(-1, 0)
+                    print("left")
+                if event.key == pygame.K_RIGHT:
+                    PLAYER.move(1, 0)
+                    print("right")
+                if event.key == pygame.K_UP:
+                    PLAYER.move(0, -1)
+                    print("up")
+                if event.key == pygame.K_DOWN:
+                    PLAYER.move(0, 1)
+                    print("down")  
+    
+        draw_game()
+
+        pygame.display.update()
+
+
+
+def game_initialize():
+
+    global SURFACE_MAIN, GAME_MAP, PLAYER
+
+    #Initialize the pygame
+    pygame.init()
+
+    #Create the screen
+    SURFACE_MAIN = pygame.display.set_mode( (constants.GAME_WIDTH, constants.GAME_HEIGHT) )
+
+    GAME_MAP = map_create()
+
+    PLAYER = obj_Actor(0, 0, constants.S_PLAYER)
+
+
 
 
 #Main
 if __name__ == "__main__":
-    pass
+    game_initialize()
+    game_loop()
