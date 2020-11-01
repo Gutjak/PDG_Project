@@ -1,4 +1,4 @@
-import pygame, sys
+import pygame, sys, random
 import constants
 
 
@@ -8,12 +8,21 @@ icon = pygame.image.load('data/brick.png')
 pygame.display.set_icon(icon)
 
 
-#Structs
-class struct_Tile:
+#Define parameters for tiles
+class tile:
     def __init__(self, block_path):
         self.block_path = block_path
 
-#Objects
+#Define upper left corner and size of room
+class rect:
+    def __init__(self, x, y, w, h):
+        self.x1 = x
+        self.y1 = y
+        self.x2 = x + w
+        self.y2 = y + h
+
+
+#Define and control Sprite
 class obj_Actor:
     def __init__(self, x, y, sprite):
         self.x = x #map adress
@@ -21,19 +30,36 @@ class obj_Actor:
         self.sprite = sprite
 
     def draw(self):
-        SURFACE_MAIN.blit(self.sprite, (self.x*constants.CELL_WIDTH, self.y*constants.CELL_HEIGHT))
+        SURFACE_MAIN.blit(self.sprite, (self.x*constants.TILE, self.y*constants.TILE))
 
     def move(self, dx, dy):
         if GAME_MAP[self.x + dx][self.y + dy].block_path == False:
             self.x += dx
             self.y += dy
 
-#Map with list comprehension
-def map_create():
-    new_map = [[ struct_Tile(False) for y in range(0, constants.MAP_HEIGHT)] for x in range(0, constants.MAP_WIDTH) ]
+#Map with rooms
+def create_room(room):
+    global new_map
 
-    new_map[10][10].block_path = True
-    new_map[10][15].block_path = True
+    #Room carving. +1 makes sure there are walls surounding the room
+    for x in range(room.x1 + 1, room.x2):
+        for y in range(room.y1 + 1, room.y2):
+            new_map[x][y].block_path = False
+
+def place_room():
+    pass
+
+def map_create():
+    global new_map
+
+    new_map = [[ tile(True) 
+                for y in range(0, constants.MAP_HEIGHT)] 
+               for x in range(0, constants.MAP_WIDTH) ]
+
+    room1 = rect(0, 0, 14, 16)
+    room2 = rect(10, 10, 10, 12)
+    create_room(room1)
+    create_room(room2)
 
     return new_map
 
@@ -57,16 +83,15 @@ def draw_map(map_to_draw):
         for y in range(0, constants.MAP_HEIGHT):
             if map_to_draw[x][y].block_path == True:
                 #Draw wall
-                SURFACE_MAIN.blit(constants.S_WALL, (x*constants.CELL_WIDTH, y*constants.CELL_HEIGHT))
+                SURFACE_MAIN.blit(constants.S_WALL, (x*constants.TILE, y*constants.TILE))
             
             else:
                 #Draw floor
-                SURFACE_MAIN.blit(constants.S_FLOOR, (x*constants.CELL_WIDTH, y*constants.CELL_HEIGHT))
+                SURFACE_MAIN.blit(constants.S_FLOOR, (x*constants.TILE, y*constants.TILE))
 
 
 
 def game_loop():
-
     
     #Game Loop
     running = True
@@ -109,7 +134,7 @@ def game_initialize():
 
     GAME_MAP = map_create()
 
-    PLAYER = obj_Actor(0, 0, constants.S_PLAYER)
+    PLAYER = obj_Actor(3, 4, constants.S_PLAYER)
 
 
 

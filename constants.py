@@ -2,16 +2,20 @@ import pygame
 pygame.init()
 
 
-#Game size
-GAME_WIDTH = 800
-GAME_HEIGHT = 600
-
-CELL_WIDTH = 32
-CELL_HEIGHT = 32
+#Define a tile
+TILE = 32
 
 #Map variables
 MAP_WIDTH = 30
-MAP_HEIGHT = 30
+MAP_HEIGHT = 24
+
+#Game size
+GAME_WIDTH = TILE*MAP_WIDTH
+GAME_HEIGHT = TILE*MAP_HEIGHT
+
+#Room
+
+
 
 #Color definitions
 COLOR_BLACK = (0, 0, 0)
