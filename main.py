@@ -12,6 +12,7 @@ pygame.display.set_icon(icon)
 class tile:
     def __init__(self, block_path):
         self.block_path = block_path
+        self.visited = visited
 
 #Define upper left corner and size of room
 class rect:
@@ -20,7 +21,6 @@ class rect:
         self.y1 = y
         self.x2 = x + w
         self.y2 = y + h
-
 
 #Define and control Sprite
 class obj_Actor:
@@ -37,6 +37,54 @@ class obj_Actor:
             self.x += dx
             self.y += dy
 
+def create_grid():
+    global new_map
+
+    pointer = []
+    for x in range(1, constants.MAP_WIDTH-1, 2):
+        for y in range(1, constants.MAP_HEIGHT-1, 2):
+            new_map[x][y].block_path = False
+            pointer.append((x, y))
+
+        return pointer
+
+    def remove_wall():
+        pass
+
+def carve_maze(coords):
+    global new_map
+
+    x,y = coords   
+    
+    #Given a current cell as a parameter
+        #Coords set to (1,1) from the start
+
+    #Mark the current cell as visited
+    new_map[x][y].visited = True
+
+    #Define neighbours
+    neighbours = [cell for cell in [(x, y-2), #Look north
+                                    (x, y+2), #Look south
+                                    (x+2, y), #Look east
+                                    (x-2, y)] #Look west
+                  if cell[0] > 0 and cell[0] < constants.GAME_WIDTH
+                  and cell[1] > 0 and cell[1] < constants.GAME_HEIGHT] #Don't go outside
+
+    random.shuffle(neighbours)
+
+    #While the current cell has any unvisited neighbour cells
+    for neighbour in neighbours:
+        #Choose one of the unvisited neighbours
+        if new_map[neighbour[0]][neighbour[1]].visited == False:
+            #Remove the wall between the current cell and the chosen cell
+            remove_wall(coords, neighbour)
+            #Invoke the routine recursively for a chosen cell
+            carve_maze(neighbour)
+
+def create_maze():
+    points = create_grid()
+    carve_walls((1,1))
+
 #Map with rooms
 def create_room(room):
     global new_map
@@ -46,20 +94,21 @@ def create_room(room):
         for y in range(room.y1 + 1, room.y2):
             new_map[x][y].block_path = False
 
-def place_room():
-    pass
+
 
 def map_create():
     global new_map
 
     new_map = [[ tile(True) 
                 for y in range(0, constants.MAP_HEIGHT)] 
-               for x in range(0, constants.MAP_WIDTH) ]
+               for x in range(0, constants.MAP_WIDTH)]
 
-    room1 = rect(0, 0, 14, 16)
-    room2 = rect(10, 10, 10, 12)
-    create_room(room1)
-    create_room(room2)
+    create_maze()
+
+    #room1 = rect(1, 2, 10, 10)
+    #room2 = rect(10, 10, 10, 12)
+    #create_room(room1)
+    #create_room(room2)
 
     return new_map
 
@@ -72,7 +121,7 @@ def draw_game():
     #draw the map
     draw_map(GAME_MAP)
 
-    # draw the character
+    #draw the character
     PLAYER.draw()
 
     # draw the dragon
@@ -141,8 +190,9 @@ def game_initialize():
 
     GAME_MAP = map_create()
 
-    PLAYER = obj_Actor(3, 4, constants.S_PLAYER)
-    DRAGON = obj_Actor(5, 4, constants.S_DRAGON)
+    PLAYER = obj_Actor(1, 1, constants.S_PLAYER)
+
+
 
 
 #Main
