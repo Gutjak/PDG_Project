@@ -1,5 +1,7 @@
-import pygame, sys, random
+import pygame
+import sys
 import constants
+import random
 
 
 # Add Title and Icon to window
@@ -9,13 +11,13 @@ pygame.display.set_icon(icon)
 
 
 #Define parameters for tiles
-class tile:
-    def __init__(self, block_path):
+class TILE:
+    def __init__(self, block_path, visited):
         self.block_path = block_path
-        self.visited = visited
+        self.visited = visited;
 
 #Define upper left corner and size of room
-class rect:
+class RECT:
     def __init__(self, x, y, w, h):
         self.x1 = x
         self.y1 = y
@@ -23,7 +25,7 @@ class rect:
         self.y2 = y + h
 
 #Define and control Sprite
-class obj_Actor:
+class OBJ_ACTOR:
     def __init__(self, x, y, sprite):
         self.x = x #map adress
         self.y = y #map adress
@@ -38,22 +40,27 @@ class obj_Actor:
             self.y += dy
 
 def create_grid():
-    global new_map
-
+    
     pointer = []
-    for x in range(1, constants.MAP_WIDTH-1, 2):
-        for y in range(1, constants.MAP_HEIGHT-1, 2):
+    for x in range(1, constants.MAP_WIDTH, 2):
+        for y in range(1, constants.MAP_HEIGHT, 2):
             new_map[x][y].block_path = False
             pointer.append((x, y))
 
-        return pointer
+    return pointer
 
-    def remove_wall():
-        pass
+def remove_wall(coords_from, coords_to):
+        xa, ya = coords_from
+        xb, yb = coords_to
+        
+        if xa == xb:
+            new_map[xa][min(ya,yb)+1].block_path = False
+        else:
+            new_map[min(xa,xb)+1][ya].block_path = False
 
 def carve_maze(coords):
     global new_map
-
+   
     x,y = coords   
     
     #Given a current cell as a parameter
@@ -63,27 +70,31 @@ def carve_maze(coords):
     new_map[x][y].visited = True
 
     #Define neighbours
-    neighbours = [cell for cell in [(x, y-2), #Look north
-                                    (x, y+2), #Look south
-                                    (x+2, y), #Look east
-                                    (x-2, y)] #Look west
-                  if cell[0] > 0 and cell[0] < constants.GAME_WIDTH
-                  and cell[1] > 0 and cell[1] < constants.GAME_HEIGHT] #Don't go outside
+    neighbours = [cell for cell in [(x-2, y), 
+                                    (x+2, y), 
+                                    (x, y+2), 
+                                    (x, y-2)] if cell[0] > 0 and cell[0] < constants.MAP_WIDTH-1 and cell[1] > 0 and cell[1] < constants.MAP_HEIGHT-1] #Don't go outside
 
+     #neighbours = [cell for cell in [(x, y-2), #Look north
+     #                                (x, y+2), #Look south
+     #                                (x+2, y), #Look east
+     #                                (x-2, y)] #Look west
+     #                                if cell[0] > 0 and cell[0] < constants.GAME_WIDTH-1
+     #                                and cell[1] > 0 and cell[1] < constants.GAME_HEIGHT-1] #Don't go outside
     random.shuffle(neighbours)
 
     #While the current cell has any unvisited neighbour cells
     for neighbour in neighbours:
         #Choose one of the unvisited neighbours
-        if new_map[neighbour[0]][neighbour[1]].visited == False:
+        if (new_map[neighbour[0]][neighbour[1]].visited == False):
             #Remove the wall between the current cell and the chosen cell
             remove_wall(coords, neighbour)
             #Invoke the routine recursively for a chosen cell
             carve_maze(neighbour)
 
 def create_maze():
-    points = create_grid()
-    carve_walls((1,1))
+    pointer = create_grid()
+    carve_maze((1,1))
 
 #Map with rooms
 def create_room(room):
@@ -93,13 +104,14 @@ def create_room(room):
     for x in range(room.x1 + 1, room.x2):
         for y in range(room.y1 + 1, room.y2):
             new_map[x][y].block_path = False
+            new_map[x][y].visited = True
 
 
 
 def map_create():
     global new_map
 
-    new_map = [[ tile(True) 
+    new_map = [[ tile(True, False) 
                 for y in range(0, constants.MAP_HEIGHT)] 
                for x in range(0, constants.MAP_WIDTH)]
 
