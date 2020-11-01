@@ -1,4 +1,4 @@
-import pygame
+import pygame, random
 pygame.init()
 
 
@@ -6,15 +6,27 @@ pygame.init()
 TILE = 32
 
 #Map variables
-MAP_WIDTH = 30
-MAP_HEIGHT = 24
+MAP_WIDTH = 31
+MAP_HEIGHT = 25
 
 #Game size
 GAME_WIDTH = TILE*MAP_WIDTH
 GAME_HEIGHT = TILE*MAP_HEIGHT
 
 #Room
-
+#MAX_ROOMS = 5
+#ROOM_COORD_X_MIN = 0
+#ROOM_COORD_X_MAX = GAME_WIDTH-5
+#ROOM_COORD_Y_MIN = 0
+#ROOM_COORD_Y_MAX = GAME_WIDTH-5
+#ROOM_SIZE_X_MIN = 3
+#ROOM_SIZE_X_MAX = 5
+#ROOM_SIZE_Y_MIN = 3
+#ROOM_SIZE_Y_MAX = 5
+#ROOM_COORD_X = random.randint(0, GAME_WIDTH-6)
+#ROOM_COORD_Y = random.randint(0, GAME_HEIGHT-6)
+#ROOM_SIZE_X = random.randint(TILE*2, TILE*5)
+#ROOM_SIZE_Y = random.randint(TILE*2, TILE*5)
 
 
 #Color definitions
