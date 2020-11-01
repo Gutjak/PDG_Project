@@ -4,7 +4,7 @@ import constants
 
 # Add Title and Icon to window
 pygame.display.set_caption("PDG Project")
-icon = pygame.image.load('data/brick.png')
+icon = pygame.image.load('data/maze.png')
 pygame.display.set_icon(icon)
 
 
@@ -75,6 +75,10 @@ def draw_game():
     # draw the character
     PLAYER.draw()
 
+    # draw the dragon
+    DRAGON.draw()
+
+
     #Update the display
     pygame.display.flip()
 
@@ -99,7 +103,8 @@ def game_loop():
     
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                sys.exit()
+                running = False
+                break
             
             #check keystrokes to move player
             if event.type == pygame.KEYDOWN:
@@ -115,16 +120,18 @@ def game_loop():
                 if event.key == pygame.K_DOWN:
                     PLAYER.move(0, 1)
                     print("down")  
+
     
-        draw_game()
+            draw_game()
 
-        pygame.display.update()
+            pygame.display.update()
 
+    pygame.quit()
 
 
 def game_initialize():
 
-    global SURFACE_MAIN, GAME_MAP, PLAYER
+    global SURFACE_MAIN, GAME_MAP, PLAYER, DRAGON
 
     #Initialize the pygame
     pygame.init()
@@ -135,8 +142,7 @@ def game_initialize():
     GAME_MAP = map_create()
 
     PLAYER = obj_Actor(3, 4, constants.S_PLAYER)
-
-
+    DRAGON = obj_Actor(5, 4, constants.S_DRAGON)
 
 
 #Main

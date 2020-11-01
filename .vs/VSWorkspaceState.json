@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\data"
   ],
-  "SelectedNode": "\\constants.py",
+  "SelectedNode": "\\main.py",
   "PreviewInSolutionExplorer": false
 }
