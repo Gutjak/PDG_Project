@@ -11,13 +11,13 @@ pygame.display.set_icon(icon)
 
 
 #Define parameters for tiles
-class TILE:
+class Tile:
     def __init__(self, block_path, visited):
         self.block_path = block_path
         self.visited = visited;
 
 #Define upper left corner and size of room
-class RECT:
+class Rect:
     def __init__(self, x, y, w, h):
         self.x1 = x
         self.y1 = y
@@ -25,7 +25,7 @@ class RECT:
         self.y2 = y + h
 
 #Define and control Sprite
-class OBJ_ACTOR:
+class Obj_Actor:
     def __init__(self, x, y, sprite):
         self.x = x #map adress
         self.y = y #map adress
@@ -50,51 +50,83 @@ def create_grid():
     return pointer
 
 def remove_wall(coords_from, coords_to):
-        xa, ya = coords_from
-        xb, yb = coords_to
+    xa, ya = coords_from
+    xb, yb = coords_to
         
-        if xa == xb:
-            new_map[xa][min(ya,yb)+1].block_path = False
-        else:
-            new_map[min(xa,xb)+1][ya].block_path = False
+    if xa == xb:
+        new_map[xa][min(ya,yb)+1].block_path = False
+        new_map[xa][min(ya,yb)+1].visited = True
+    else:
+        new_map[min(xa,xb)+1][ya].block_path = False
+        new_map[min(xa,xb)+1][ya].visited = True
+
+    """
+    Takes coordinates from the nodes it stands on and unvisited node it wants to go to.
+    First it compares x direction from both nodes if equal. If False, y direction must be equal.
+    wichever direction is equal, carve the tile in the other direction between the two nodes.
+    Ex from 1,3 to 3,3. y is equal. Must carve in x direction. Chose the smallest of 1 and 3. Add 1 to result. Carve 2,3 
+    """
 
 def carve_maze(coords):
     global new_map
    
     x,y = coords   
     
-    #Given a current cell as a parameter
+    #Recursive depth-first search
+    #Given a current node as a parameter
         #Coords set to (1,1) from the start
 
-    #Mark the current cell as visited
+    #Mark the current node as visited
     new_map[x][y].visited = True
 
     #Define neighbours
-    neighbours = [cell for cell in [(x-2, y), 
+    neighbours = [node for node in [(x-2, y), 
                                     (x+2, y), 
                                     (x, y+2), 
-                                    (x, y-2)] if cell[0] > 0 and cell[0] < constants.MAP_WIDTH-1 and cell[1] > 0 and cell[1] < constants.MAP_HEIGHT-1] #Don't go outside
+                                    (x, y-2)] if node[0] > 0 and node[0] < constants.MAP_WIDTH-1 
+                                    and node[1] > 0 and node[1] < constants.MAP_HEIGHT-1] #Don't go outside
 
-     #neighbours = [cell for cell in [(x, y-2), #Look north
-     #                                (x, y+2), #Look south
-     #                                (x+2, y), #Look east
-     #                                (x-2, y)] #Look west
-     #                                if cell[0] > 0 and cell[0] < constants.GAME_WIDTH-1
-     #                                and cell[1] > 0 and cell[1] < constants.GAME_HEIGHT-1] #Don't go outside
+    print(f"node: {coords} Neighbours: {neighbours}") #Show the work
     random.shuffle(neighbours)
 
-    #While the current cell has any unvisited neighbour cells
+    #While the current node has any unvisited neighbour nodes
     for neighbour in neighbours:
         #Choose one of the unvisited neighbours
         if (new_map[neighbour[0]][neighbour[1]].visited == False):
-            #Remove the wall between the current cell and the chosen cell
+            #Remove the wall between the current node and the chosen node
             remove_wall(coords, neighbour)
-            #Invoke the routine recursively for a chosen cell
+            #Invoke the routine recursively for a chosen node
             carve_maze(neighbour)
 
 def create_maze():
     pointer = create_grid()
     carve_maze((1,1))
+    shortcuts()
+
+#Shortcuts
+def shortcuts():
+    global new_map
+    #Number of shortcuts is modular compared to the width of board
+    max_shortcuts = int(constants.MAP_WIDTH // 3)
+
+    s = 0
+    while s < max_shortcuts:
+        x = random.randrange(2, constants.MAP_WIDTH-1, 2)
+        y = random.randrange(2, constants.MAP_HEIGHT-1, 2)
+        if new_map[x][y].visited == False:
+            nb = [node for node in [(x-1, y), (x+1, y), (x, y+1), (x, y-1)]]
+            if ((new_map[nb[0][0]][nb[0][1]].visited == False and new_map[nb[1][0]][nb[1][1]].visited == False \
+                and new_map[nb[2][0]][nb[2][1]].visited == True and new_map[nb[3][0]][nb[3][1]].visited == True) \
+                or (new_map[nb[0][0]][nb[0][1]].visited == True and new_map[nb[1][0]][nb[1][1]].visited == True \
+                and new_map[nb[2][0]][nb[2][1]].visited == False and new_map[nb[3][0]][nb[3][1]].visited == False)):
+                new_map[x][y].block_path = False
+                new_map[x][y].visited = True
+                print(f"Shortcut at {x},{y}")
+                s += 1            
+"""
+TODO. Right now shortcuts are merely missing blocks.
+Make it check it is on a line. Not in a corner or end piece.
+"""
 
 #Map with rooms
 def create_room(room):
@@ -111,14 +143,14 @@ def create_room(room):
 def map_create():
     global new_map
 
-    new_map = [[ tile(True, False) 
+    new_map = [[ Tile(True, False) 
                 for y in range(0, constants.MAP_HEIGHT)] 
                for x in range(0, constants.MAP_WIDTH)]
 
     create_maze()
 
-    #room1 = rect(1, 2, 10, 10)
-    #room2 = rect(10, 10, 10, 12)
+    #room1 = Rect(1, 2, 10, 10)
+    #room2 = Rect(10, 10, 10, 12)
     #create_room(room1)
     #create_room(room2)
 
@@ -202,7 +234,8 @@ def game_initialize():
 
     GAME_MAP = map_create()
 
-    PLAYER = obj_Actor(1, 1, constants.S_PLAYER)
+    PLAYER = Obj_Actor(1, 1, constants.S_PLAYER)
+    DRAGON = Obj_Actor(3, 3, constants.S_DRAGON)
 
 
 
