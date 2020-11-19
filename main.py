@@ -103,7 +103,6 @@ def create_maze():
     carve_maze((1,1))
     shortcuts()
 
-#Shortcuts
 def shortcuts():
     global new_map
     #Number of shortcuts is modular compared to the width of board
@@ -115,6 +114,7 @@ def shortcuts():
         y = random.randrange(2, constants.MAP_HEIGHT-1, 2)
         if new_map[x][y].visited == False:
             nb = [node for node in [(x-1, y), (x+1, y), (x, y+1), (x, y-1)]]
+            #check it is on a line. Not in a corner or end piece.
             if ((new_map[nb[0][0]][nb[0][1]].visited == False and new_map[nb[1][0]][nb[1][1]].visited == False \
                 and new_map[nb[2][0]][nb[2][1]].visited == True and new_map[nb[3][0]][nb[3][1]].visited == True) \
                 or (new_map[nb[0][0]][nb[0][1]].visited == True and new_map[nb[1][0]][nb[1][1]].visited == True \
@@ -123,10 +123,6 @@ def shortcuts():
                 new_map[x][y].visited = True
                 print(f"Shortcut at {x},{y}")
                 s += 1            
-"""
-TODO. Right now shortcuts are merely missing blocks.
-Make it check it is on a line. Not in a corner or end piece.
-"""
 
 #Map with rooms
 def create_room(room):
@@ -235,7 +231,7 @@ def game_initialize():
     GAME_MAP = map_create()
 
     PLAYER = Obj_Actor(1, 1, constants.S_PLAYER)
-    DRAGON = Obj_Actor(3, 3, constants.S_DRAGON)
+    DRAGON = Obj_Actor(constants.MAP_WIDTH-2, constants.MAP_HEIGHT-2, constants.S_DRAGON)
 
 
 

@@ -6,8 +6,8 @@ pygame.init()
 TILE = 32
 
 #Map variables
-MAP_WIDTH = 27
-MAP_HEIGHT = 27
+MAP_WIDTH = 17
+MAP_HEIGHT = 17
 
 #Game size
 GAME_WIDTH = TILE*MAP_WIDTH
