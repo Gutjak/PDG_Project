@@ -2,7 +2,6 @@ import pygame
 import sys
 import constants
 import random
-import pytest
 import math
 import time
 
@@ -212,6 +211,27 @@ def map_create():
 
     return new_map
 
+def test_end():
+    global SURFACE_MAIN
+    #endtitle = pygame.font.SysFont('Arial', 30)
+
+    if (PLAYER.x, PLAYER.y) ==  (DOOR.x, DOOR.y):
+        print("YOU WIN!")
+        SURFACE_MAIN.fill(constants.COLOR_OLIVE)
+        gamewon = constants.TEXT_DEFAULT.render('You got out. Congratz... Conkrati... WELL DONE!', True, (0, 0, 0))
+        SURFACE_MAIN.blit(gamewon,(100,350))
+
+    elif (PLAYER.x, PLAYER.y) ==  (DRAGON.x, DRAGON.y):
+        print("YOU LOSE!")
+        SURFACE_MAIN.fill(constants.COLOR_RED)
+        gameover = constants.TEXT_DEFAULT.render('Dragon ate you. GAME OVER!', True, (0, 0, 0))
+        SURFACE_MAIN.blit(gameover,(100,350))
+        
+    else:
+        draw_game()
+
+
+
 def draw_game():
     global SURFACE_MAIN
 
@@ -220,6 +240,9 @@ def draw_game():
 
     #draw the map
     draw_map(GAME_MAP)
+
+    #draw door
+    DOOR.draw()
 
     #draw the character
     PLAYER.draw()
@@ -244,8 +267,7 @@ def draw_map(map_to_draw):
                 #Draw floor
                 SURFACE_MAIN.blit(constants.S_FLOOR, (x*constants.TILE, y*constants.TILE))
 
-myfont = pygame.font.SysFont('Arial', 30)
-textsurface = myfont.render('Beware of the Dragon', False, (0, 0, 0))
+textsurface = constants.TEXT_DEFAULT.render('Beware of the Dragon', True, (0, 0, 0))
 
 def enemy_move():
 
@@ -257,21 +279,23 @@ def enemy_move():
     print("INS:", ins)
     print("ACT:", end="")
 
+    if len(ins) > 0:
+        x,y = ins.pop()
+        print("(" + str(x) + "," + str(y) + "), ", end="")
+        DRAGON.move(x,y)
     
-    x,y = ins.pop()
-    print("(" + str(x) + "," + str(y) + "), ", end="")
-    DRAGON.move(x,y)
 
 def game_loop():
-    
-    
+    global SURFACE_MAIN
 
-
+    SURFACE_MAIN.fill(constants.COLOR_GREY)
+    start = constants.TEXT_DEFAULT.render('Press Enter to start', True, (0, 0, 0))
+    SURFACE_MAIN.blit(start,(100,350))
+    
     #Game Loop
     running = True
     while running:
          
-             
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -292,9 +316,10 @@ def game_loop():
                 if event.key == pygame.K_DOWN:
                     PLAYER.move(0, 1)
                     print("down")  
+                #time.sleep(0.2)
                 enemy_move()
-                
-            draw_game()
+
+                test_end()
 
             pygame.display.update()
 
@@ -303,7 +328,7 @@ def game_loop():
 
 def game_initialize():
 
-    global SURFACE_MAIN, GAME_MAP, PLAYER, DRAGON
+    global SURFACE_MAIN, GAME_MAP, PLAYER, DRAGON, DOOR
 
     #Initialize the pygame
     pygame.init()
@@ -316,6 +341,7 @@ def game_initialize():
 
     PLAYER = Obj_Actor(1, 1, constants.S_PLAYER)
     DRAGON = Obj_Actor(constants.MAP_WIDTH-2, constants.MAP_HEIGHT-2, constants.S_DRAGON)
+    DOOR = Obj_Actor(constants.MAP_WIDTH-2, constants.MAP_HEIGHT-2, constants.S_DOOR2)
 
 
 

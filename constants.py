@@ -19,9 +19,13 @@ COLOR_BLACK = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
 COLOR_GREY = (100, 100, 100)
 COLOR_OLIVE = (0, 64, 0)
+COLOR_RED = (208, 18, 18)
 
 #Game colors
 COLOR_DEFAULT_BG = COLOR_OLIVE
+
+#Game text
+TEXT_DEFAULT = pygame.font.SysFont('Arial', 30)
 
 #Sprites
 S_PLAYER = pygame.image.load('data/man.png')
