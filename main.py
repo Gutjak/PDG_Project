@@ -2,7 +2,9 @@ import pygame
 import sys
 import constants
 import random
-
+import pytest
+import math
+import time
 
 # Add Title and Icon to window
 pygame.display.set_caption("PDG Project")
@@ -38,6 +40,60 @@ class Obj_Actor:
         if GAME_MAP[self.x + dx][self.y + dy].block_path == False:
             self.x += dx
             self.y += dy
+
+#start the dragon and chase the player
+def dist(a,b):
+    return math.sqrt(abs(a[0]-b[0])**2 + abs(a[1]-b[1])**2)
+
+def reconstruct_path(came_from, current):
+    total_path = [current]
+    while current in came_from:
+        current = came_from[current]
+        total_path.append(current)
+    total_path.reverse()
+    return total_path
+
+def make_instructions(path):
+    ins = []
+    for i in range(len(path)-1):
+        ins.append((path[i+1][0] - path[i][0], path[i+1][1] - path[i][1]))
+    ins.reverse()
+    return ins
+
+def a_star(start, goal):
+    open_set = {start : dist(start, goal)} # this is a dict
+    came_from = {} # Dict. camefrom(n) is the node before the shortest known  path to n
+    g_score = {} #Dict. g_score(n) cost of the shortest path to n.
+    g_score[start] = 0
+
+    while(open_set):
+        current = min(open_set, key = open_set.get) #pick the node in open_set with the lowest f_score
+        open_set.pop(current)
+        
+        print(current)
+
+        x, y = current
+
+        if current == goal:
+            return reconstruct_path(came_from, current)
+
+        for neighbour in [c for c in [(x-1,y),
+                                      (x+1,y),
+                                      (x,y-1),
+                                      (x,y+1)] if not new_map[c[0]][c[1]].block_path]:
+            
+            tentative_g_score = g_score[current] +1
+
+            if neighbour not in g_score or tentative_g_score < g_score[neighbour]: #shorter path
+                came_from[neighbour] = current
+                g_score[neighbour] = tentative_g_score
+                open_set[neighbour] = g_score[neighbour] + dist(neighbour, goal)
+
+    return None
+
+def make_path():
+    pass
+
 
 def create_grid():
     
@@ -106,7 +162,11 @@ def create_maze():
 def shortcuts():
     global new_map
     #Number of shortcuts is modular compared to the width of board
-    max_shortcuts = int(constants.MAP_WIDTH // 3)
+    max_shortcuts = 0
+
+    #below 11 tile is to few tiles to makes a decent maze with shortcuts
+    if constants.MAP_WIDTH > 11:
+        max_shortcuts = int(constants.MAP_WIDTH // 2)
 
     s = 0
     while s < max_shortcuts:
@@ -164,9 +224,11 @@ def draw_game():
     #draw the character
     PLAYER.draw()
 
-    # draw the dragon
+    #draw the dragon
     DRAGON.draw()
 
+    #Add text
+    SURFACE_MAIN.blit(textsurface,(0,0))
 
     #Update the display
     pygame.display.flip()
@@ -182,14 +244,35 @@ def draw_map(map_to_draw):
                 #Draw floor
                 SURFACE_MAIN.blit(constants.S_FLOOR, (x*constants.TILE, y*constants.TILE))
 
+myfont = pygame.font.SysFont('Arial', 30)
+textsurface = myfont.render('Beware of the Dragon', False, (0, 0, 0))
 
+def enemy_move():
+
+    path = a_star((DRAGON.x, DRAGON.y), (PLAYER.x, PLAYER.y))
+    print("Path", path)
+
+    ins = make_instructions(path)
+
+    print("INS:", ins)
+    print("ACT:", end="")
+
+    
+    x,y = ins.pop()
+    print("(" + str(x) + "," + str(y) + "), ", end="")
+    DRAGON.move(x,y)
 
 def game_loop():
     
+    
+
+
     #Game Loop
     running = True
     while running:
-    
+         
+             
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -209,8 +292,8 @@ def game_loop():
                 if event.key == pygame.K_DOWN:
                     PLAYER.move(0, 1)
                     print("down")  
-
-    
+                enemy_move()
+                
             draw_game()
 
             pygame.display.update()
@@ -224,6 +307,7 @@ def game_initialize():
 
     #Initialize the pygame
     pygame.init()
+    pygame.font.init()
 
     #Create the screen
     SURFACE_MAIN = pygame.display.set_mode( (constants.GAME_WIDTH, constants.GAME_HEIGHT) )
