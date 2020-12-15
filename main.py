@@ -213,12 +213,11 @@ def map_create():
 
 def test_end():
     global SURFACE_MAIN
-    #endtitle = pygame.font.SysFont('Arial', 30)
 
     if (PLAYER.x, PLAYER.y) ==  (DOOR.x, DOOR.y):
         print("YOU WIN!")
-        SURFACE_MAIN.fill(constants.COLOR_OLIVE)
-        gamewon = constants.TEXT_DEFAULT.render('You got out. Congratz... Conkrati... WELL DONE!', True, (0, 0, 0))
+        SURFACE_MAIN.fill(constants.COLOR_GREEN)
+        gamewon = constants.TEXT_DEFAULT.render('You got out. Congratju... Congratz... uhm... WELL DONE!', True, (0, 0, 0))
         SURFACE_MAIN.blit(gamewon,(100,350))
 
     elif (PLAYER.x, PLAYER.y) ==  (DRAGON.x, DRAGON.y):
